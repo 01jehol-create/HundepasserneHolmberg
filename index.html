@@ -17,11 +17,12 @@ header {
 }
 
 header img {
-    width: 120px;
+    width: 150px;
 }
 
 h1 {
     color: #2f6f6d;
+    margin: 10px 0 0;
 }
 
 .container {
@@ -59,7 +60,6 @@ h1 {
 .booked {
     background: #e74c3c;
     color: white;
-    cursor: not-allowed;
 }
 
 button {
@@ -71,7 +71,7 @@ button {
     margin-top: 10px;
 }
 
-input, select {
+input {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
@@ -82,7 +82,7 @@ input, select {
 <body>
 
 <header>
-    <img src="logo.png">
+    <img src="logo.png" alt="Hundepasserne Holmberg logo">
     <h1>Hundepasserne Holmberg</h1>
     <p>Tryg pasning af din hund</p>
 </header>
@@ -111,21 +111,9 @@ input, select {
 
 <div class="card">
 <h2>📋 Booking</h2>
-
-<form action="https://formspree.io/f/DIT-ID" method="POST">
-<input type="text" name="navn" placeholder="Dit navn" required>
-<input type="email" name="email" placeholder="Din email" required>
-
-<select name="foder">
-<option value="250">Medbringer selv foder (250 kr)</option>
-<option value="300">Foder inkluderet (300 kr)</option>
-</select>
-
-<input type="hidden" name="datoer" id="datoer">
-
-<button type="submit">Book nu</button>
-</form>
-
+<input type="text" id="navn" placeholder="Dit navn">
+<button onclick="book()">Book nu</button>
+<p id="resultat"></p>
 </div>
 
 </div>
@@ -134,6 +122,7 @@ input, select {
 let calendar = document.getElementById("calendar");
 let valgt = [];
 let currentDate = new Date();
+let bookedDates = JSON.parse(localStorage.getItem("bookinger")) || [];
 
 function generateCalendar() {
     calendar.innerHTML = "";
@@ -149,19 +138,23 @@ function generateCalendar() {
     for (let i = 1; i <= daysInMonth; i++) {
         let day = document.createElement("div");
         day.classList.add("day");
-        day.innerText = i;
 
         let fullDate = `${year}-${month+1}-${i}`;
+        day.innerText = i;
 
-        day.onclick = () => {
-            day.classList.toggle("selected");
+        if (bookedDates.includes(fullDate)) {
+            day.classList.add("booked");
+        } else {
+            day.onclick = () => {
+                day.classList.toggle("selected");
 
-            if (valgt.includes(fullDate)) {
-                valgt = valgt.filter(d => d !== fullDate);
-            } else {
-                valgt.push(fullDate);
-            }
-        };
+                if (valgt.includes(fullDate)) {
+                    valgt = valgt.filter(d => d !== fullDate);
+                } else {
+                    valgt.push(fullDate);
+                }
+            };
+        }
 
         calendar.appendChild(day);
     }
@@ -177,9 +170,22 @@ function prevMonth() {
     generateCalendar();
 }
 
-document.querySelector("form").addEventListener("submit", function() {
-    document.getElementById("datoer").value = valgt.join(", ");
-});
+function book() {
+    let navn = document.getElementById("navn").value;
+
+    if (valgt.length === 0) {
+        alert("Vælg datoer først!");
+        return;
+    }
+
+    bookedDates = bookedDates.concat(valgt);
+    localStorage.setItem("bookinger", JSON.stringify(bookedDates));
+
+    document.getElementById("resultat").innerText =
+        "Tak " + navn + "! Din booking er gemt.";
+
+    location.reload();
+}
 
 generateCalendar();
 </script>
