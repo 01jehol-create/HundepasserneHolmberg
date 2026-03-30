@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<title>Hundepasserne Holmberg</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #f5f1e8;
+}
+
+header {
+    text-align: center;
+    padding: 30px;
+}
+
+header img {
+    width: 120px;
+}
+
+h1 {
+    color: #2f6f6d;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 10px;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.day {
+    background: #ecf0f1;
+    padding: 12px;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.selected {
+    background: #2f6f6d;
+    color: white;
+}
+
+.booked {
+    background: #e74c3c;
+    color: white;
+    cursor: not-allowed;
+}
+
+button {
+    background: #2f6f6d;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <img src="logo.png">
+    <h1>Hundepasserne Holmberg</h1>
+    <p>Tryg pasning af din hund</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>📞 Kontakt</h2>
+<p>Telefon: 61720912</p>
+<p>Email: 01jehol@gmail.com</p>
+</div>
+
+<div class="card">
+<h2>💰 Priser</h2>
+<p>250 kr pr døgn (uden foder)</p>
+<p>300 kr pr døgn (med foder)</p>
+</div>
+
+<div class="card">
+<h2>📅 Kalender</h2>
+<button onclick="prevMonth()">←</button>
+<button onclick="nextMonth()">→</button>
+<h3 id="month"></h3>
+<div class="calendar" id="calendar"></div>
+</div>
+
+<div class="card">
+<h2>📋 Booking</h2>
+
+<form action="https://formspree.io/f/DIT-ID" method="POST">
+<input type="text" name="navn" placeholder="Dit navn" required>
+<input type="email" name="email" placeholder="Din email" required>
+
+<select name="foder">
+<option value="250">Medbringer selv foder (250 kr)</option>
+<option value="300">Foder inkluderet (300 kr)</option>
+</select>
+
+<input type="hidden" name="datoer" id="datoer">
+
+<button type="submit">Book nu</button>
+</form>
+
+</div>
+
+</div>
+
+<script>
+let calendar = document.getElementById("calendar");
+let valgt = [];
+let currentDate = new Date();
+
+function generateCalendar() {
+    calendar.innerHTML = "";
+
+    let year = currentDate.getFullYear();
+    let month = currentDate.getMonth();
+
+    let monthName = currentDate.toLocaleString('da-DK', { month: 'long' });
+    document.getElementById("month").innerText = monthName + " " + year;
+
+    let daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    for (let i = 1; i <= daysInMonth; i++) {
+        let day = document.createElement("div");
+        day.classList.add("day");
+        day.innerText = i;
+
+        let fullDate = `${year}-${month+1}-${i}`;
+
+        day.onclick = () => {
+            day.classList.toggle("selected");
+
+            if (valgt.includes(fullDate)) {
+                valgt = valgt.filter(d => d !== fullDate);
+            } else {
+                valgt.push(fullDate);
+            }
+        };
+
+        calendar.appendChild(day);
+    }
+}
+
+function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    generateCalendar();
+}
+
+function prevMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    generateCalendar();
+}
+
+document.querySelector("form").addEventListener("submit", function() {
+    document.getElementById("datoer").value = valgt.join(", ");
+});
+
+generateCalendar();
+</script>
+
+</body>
+</html>
